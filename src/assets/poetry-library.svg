@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Книжная полка">
+  <rect width="800" height="520" fill="#263a52"/>
+  <rect x="70" y="80" width="660" height="36" fill="#bc8d58"/><rect x="70" y="238" width="660" height="36" fill="#bc8d58"/><rect x="70" y="396" width="660" height="36" fill="#bc8d58"/>
+  <g fill="#e5c07b"><rect x="95" y="125" width="46" height="105"/><rect x="154" y="140" width="32" height="90"/><rect x="204" y="118" width="55" height="112"/></g>
+  <g fill="#e06c75"><rect x="281" y="134" width="38" height="96"/><rect x="332" y="116" width="53" height="114"/><rect x="400" y="145" width="34" height="85"/></g>
+  <g fill="#61afef"><rect x="455" y="118" width="42" height="112"/><rect x="510" y="136" width="30" height="94"/><rect x="553" y="122" width="56" height="108"/><rect x="622" y="147" width="32" height="83"/></g>
+  <g fill="#98c379"><rect x="103" y="285" width="54" height="103"/><rect x="172" y="304" width="31" height="84"/><rect x="218" y="278" width="42" height="110"/></g>
+  <g fill="#d19a66"><rect x="280" y="299" width="35" height="89"/><rect x="330" y="280" width="55" height="108"/><rect x="401" y="312" width="29" height="76"/><rect x="447" y="284" width="50" height="104"/></g>
+  <g fill="#c678dd"><rect x="518" y="276" width="47" height="112"/><rect x="580" y="298" width="33" height="90"/><rect x="625" y="282" width="56" height="106"/></g>
+</svg>

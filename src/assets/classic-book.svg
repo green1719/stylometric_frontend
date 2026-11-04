@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Открытая книга на столе">
+  <rect width="800" height="520" fill="#d9c3a4"/>
+  <rect x="100" y="86" width="600" height="350" rx="18" fill="#774b34"/>
+  <path d="M398 142c-88-53-181-22-224 2v210c50-29 145-52 224-3zm4 0c88-53 181-22 224 2v210c-50-29-145-52-224-3z" fill="#f6efd9"/>
+  <path d="M400 142v209" stroke="#b79874" stroke-width="7"/>
+  <path d="M214 205h130m-130 40h130m-130 40h130m242-80H456m130 40H456m130 40H456" stroke="#b79874" stroke-width="10" stroke-linecap="round"/>
+</svg>
