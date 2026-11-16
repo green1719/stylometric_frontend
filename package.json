@@ -1,21 +1,25 @@
 {
-  "name": "stylometry-frontend-lab5",
+  "name": "stylometry-frontend-lab6",
   "private": true,
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "api:generate": "swagger-typescript-api generate -p openapi/swagger.json -o src/shared/api/generated -n stylometryApi.ts --axios",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@reduxjs/toolkit": "latest",
     "@vitejs/plugin-react": "latest",
+    "axios": "latest",
     "bootstrap": "latest",
     "react": "latest",
     "react-bootstrap": "latest",
     "react-bootstrap-icons": "latest",
     "react-dom": "latest",
+    "react-redux": "latest",
     "react-router-dom": "latest"
   },
   "devDependencies": {
@@ -28,6 +32,7 @@
     "globals": "latest",
     "typescript": "latest",
     "typescript-eslint": "latest",
-    "vite": "latest"
+    "vite": "latest",
+    "swagger-typescript-api": "latest"
   }
 }

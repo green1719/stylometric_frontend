@@ -1,13 +1,14 @@
-import { NavLink } from 'react-router-dom'
+import { useState } from 'react'
+import { NavLink, useNavigate } from 'react-router-dom'
+import { useAppDispatch, useAppSelector } from '../app/hooks'
+import { logoutSucceeded } from '../features/auth/authSlice'
+import { resetFilters } from '../features/filters/filtersSlice'
+import { setInteractionBlocked } from '../features/ui/uiSlice'
+import { logoutWithToken, readApiError } from '../shared/api/authApi'
 
-const items = [
-  { to: '/feed', label: 'Лента', icon: 'feed', enabled: true },
-  { to: '#', label: 'Добавить', icon: 'add', enabled: false },
-  { to: '/grid', label: 'Плитка', icon: 'grid', enabled: true },
-  { to: '#', label: 'Вход', icon: 'login', enabled: false },
-] as const
+type TabIconName = 'feed' | 'add' | 'grid' | 'login'
 
-function TabIcon({ name }: { name: (typeof items)[number]['icon'] }) {
+function TabIcon({ name }: { name: TabIconName }) {
   return <span className={`nav-icon nav-icon--tab nav-icon--${name}`} aria-hidden="true">
     <svg viewBox="0 0 24 24">
       {name === 'feed' && <circle cx="12" cy="12" r="5.2" />}
@@ -19,21 +20,39 @@ function TabIcon({ name }: { name: (typeof items)[number]['icon'] }) {
 }
 
 export function AppNavbar() {
+  const dispatch = useAppDispatch()
+  const navigate = useNavigate()
+  const { status, accessToken } = useAppSelector((state) => state.auth)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
+
+  async function logout() {
+    if (!accessToken || isLoggingOut) return
+    setIsLoggingOut(true)
+    dispatch(setInteractionBlocked(true))
+    try {
+      await logoutWithToken(accessToken)
+      localStorage.removeItem('stylometry_jwt')
+      dispatch(logoutSucceeded())
+      dispatch(resetFilters())
+      navigate('/grid', { replace: true })
+    } catch (error) {
+      window.alert(readApiError(error, 'Не удалось выполнить выход.'))
+    } finally {
+      setIsLoggingOut(false)
+      dispatch(setInteractionBlocked(false))
+    }
+  }
+
   return (
     <nav className="bottom-nav" aria-label="Основная навигация">
-      {items.map(({ to, label, icon, enabled }) =>
-        enabled ? (
-          <NavLink key={label} to={to} className={({ isActive }) => `nav-item${isActive ? ' nav-item--active' : ''}`} aria-label={label}>
-            <TabIcon name={icon} />
-            <span>{label}</span>
-          </NavLink>
-        ) : (
-          <span key={label} className="nav-item nav-item--disabled" aria-disabled="true" title="Раздел пока недоступен">
-            <TabIcon name={icon} />
-            <span>{label}</span>
-          </span>
-        ),
-      )}
+      <NavLink to="/feed" className={({ isActive }) => `nav-item${isActive ? ' nav-item--active' : ''}`} aria-label="Лента"><TabIcon name="feed" /><span>Лента</span></NavLink>
+      {status === 'authenticated'
+        ? <NavLink to="/add" className={({ isActive }) => `nav-item${isActive ? ' nav-item--active' : ''}`} aria-label="Добавить"><TabIcon name="add" /><span>Добавить</span></NavLink>
+        : <span className="nav-item nav-item--disabled" aria-disabled="true" title="Добавление доступно после входа"><TabIcon name="add" /><span>Добавить</span></span>}
+      <NavLink to="/grid" className={({ isActive }) => `nav-item${isActive ? ' nav-item--active' : ''}`} aria-label="Плитка"><TabIcon name="grid" /><span>Плитка</span></NavLink>
+      {status === 'authenticated'
+        ? <button type="button" className="nav-item nav-item--button" onClick={() => void logout()} disabled={isLoggingOut} aria-label="Выход"><TabIcon name="login" /><span>{isLoggingOut ? 'Выход…' : 'Выход'}</span></button>
+        : <NavLink to="/login" className={({ isActive }) => `nav-item${isActive ? ' nav-item--active' : ''}`} aria-label="Вход"><TabIcon name="login" /><span>Вход</span></NavLink>}
     </nav>
   )
 }

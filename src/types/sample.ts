@@ -9,4 +9,6 @@ export interface TextSample {
   likesCount: number
   createdAt: string
   topic: 'Классика' | 'Поэзия' | 'Проза'
+  isLiked?: boolean
+  isCurrentUserCreator?: boolean
 }

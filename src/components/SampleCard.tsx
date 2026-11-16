@@ -1,6 +1,7 @@
 import { Card, Col } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
 import defaultImage from '../assets/default-image.svg'
+import { proxyMediaUrl } from '../shared/media/proxyMediaUrl'
 import type { TextSample } from '../types/sample'
 
 interface SampleCardProps {
@@ -8,7 +9,7 @@ interface SampleCardProps {
 }
 
 export function SampleCard({ sample }: SampleCardProps) {
-  const imageSource = sample.imageUrl?.trim() || defaultImage
+  const imageSource = proxyMediaUrl(sample.imageUrl) || defaultImage
 
   return (
     <Col className="star-card-col">

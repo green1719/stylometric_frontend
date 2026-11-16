@@ -1,23 +1,81 @@
-import { ArrowLeft, Film } from 'react-bootstrap-icons'
+import { ArrowLeft, Calendar3, Film, Heart, PlayFill, Type } from 'react-bootstrap-icons'
 import { Container } from 'react-bootstrap'
-import { Link, useParams } from 'react-router-dom'
-import { TEXT_SAMPLES_MOCK } from '../data/samples.mock'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useAppDispatch, useAppSelector } from '../app/hooks'
 import defaultImage from '../assets/default-image.svg'
 import defaultVideo from '../assets/default-video.mp4'
 import defaultVideoPoster from '../assets/default-video.svg'
+import { proxyMediaUrl } from '../shared/media/proxyMediaUrl'
+import { deleteStylometrySample, toggleStylometryLike } from '../features/samples/samplesThunks'
 
 export function SamplePage() {
   const { id } = useParams()
-  const sample = TEXT_SAMPLES_MOCK.find((item) => item.id === Number(id))
+  const dispatch = useAppDispatch()
+  const navigate = useNavigate()
+  const samplesItems = useAppSelector((state) => state.samples.items)
+  const authStatus = useAppSelector((state) => state.auth.status)
+  const isInteractionBlocked = useAppSelector((state) => state.ui.isInteractionBlocked)
+  const sample = samplesItems.find((item) => item.id === Number(id))
   if (!sample) return <Container className="page-content"><h1>Карточка не найдена</h1><Link to="/grid">Вернуться к плитке</Link></Container>
-  const imageSource = sample.imageUrl?.trim() || defaultImage
-  const videoSource = sample.videoUrl?.trim() || defaultVideo
+  const imageSource = proxyMediaUrl(sample.imageUrl) || defaultImage
+  const videoSource = proxyMediaUrl(sample.videoUrl) || defaultVideo
   const isFallbackVideo = !sample.videoUrl?.trim()
+
+  async function toggleLike() {
+    if (!sample) return
+    if (authStatus !== 'authenticated') {
+      navigate('/login')
+      return
+    }
+    await dispatch(toggleStylometryLike({ id: sample.id, like: !sample.isLiked }))
+  }
+
+  async function deleteSample() {
+    if (!sample) return
+    if (!window.confirm(`Удалить образец «${sample.author}»?`)) return
+    try {
+      await dispatch(deleteStylometrySample(sample.id)).unwrap()
+      navigate('/grid', { replace: true })
+    } catch {
+      // Redux stores the server error for the current request.
+    }
+  }
+
   return (
     <Container className="page-content detail-page">
       <Link className="back-link" to="/grid"><ArrowLeft /> К плитке</Link>
-      <img className="detail-image" src={imageSource} alt={`Иллюстрация к тексту ${sample.author}`} />
-      <section><p className="eyebrow">{sample.topic}</p><h1>{sample.author}</h1><p className="lead">{sample.excerpt}</p><p>Добавлен: {new Intl.DateTimeFormat('ru-RU').format(new Date(sample.createdAt))}</p><div className="detail-video"><Film /> <video src={videoSource} poster={defaultVideoPoster} controls playsInline aria-label={isFallbackVideo ? 'Локальная видеозаглушка' : `Видео к образцу ${sample.author}`} /></div><Link className="btn btn-primary" to={`/feed/${sample.id}`}>Открыть в ленте</Link></section>
+      <article className="detail-card">
+        <div className="detail-hero">
+          <img src={imageSource} alt={`Иллюстрация к тексту ${sample.author}`} />
+          <div className="detail-hero__shade" aria-hidden="true" />
+          <span className="detail-topic">{sample.topic}</span>
+          <span className="detail-hero__label">Текстовый образец</span>
+        </div>
+        <div className="detail-body">
+          <header className="detail-heading">
+            <h1>{sample.author}</h1>
+            <p className="detail-lead">{sample.excerpt}</p>
+          </header>
+
+          <div className="detail-stats" aria-label="Стилометрические показатели">
+            <div className="detail-stat"><Type aria-hidden="true" /><span><small>Средняя длина</small><strong>{sample.averageSentenceLength} <em>слов</em></strong></span></div>
+            <div className="detail-stat"><span className="detail-stat__link" aria-hidden="true">↗</span><span><small>Частота союзов</small><strong>{sample.conjunctionFrequency}<em>%</em></strong></span></div>
+          </div>
+
+          <p className="detail-date"><Calendar3 aria-hidden="true" /> Добавлен {new Intl.DateTimeFormat('ru-RU').format(new Date(sample.createdAt))}</p>
+
+          <section className="detail-video" aria-label="Видео к текстовому образцу">
+            <div className="detail-video__heading"><span><Film aria-hidden="true" /><strong>Видео-представление</strong></span><small>{isFallbackVideo ? 'демонстрационный ролик' : 'материалы образца'}</small></div>
+            <div className="detail-video__frame"><video src={videoSource} poster={defaultVideoPoster} controls playsInline aria-label={isFallbackVideo ? 'Локальная видеозаглушка' : `Видео к образцу ${sample.author}`} /></div>
+          </section>
+
+          <div className="detail-actions">
+            <Link className="detail-action detail-action--primary" to={`/feed/${sample.id}`}><PlayFill aria-hidden="true" /> Открыть в ленте</Link>
+            <button className={`detail-action detail-action--like${sample.isLiked ? ' is-liked' : ''}`} type="button" disabled={isInteractionBlocked} onClick={() => void toggleLike()}><Heart aria-hidden="true" /> {sample.isLiked ? 'В избранном' : 'Нравится'} <b>{sample.likesCount}</b></button>
+            {sample.isCurrentUserCreator && <button className="detail-action detail-action--delete" type="button" disabled={isInteractionBlocked} onClick={() => void deleteSample()}>Удалить</button>}
+          </div>
+        </div>
+      </article>
     </Container>
   )
 }
